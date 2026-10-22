@@ -1,0 +1,53 @@
+{
+  "name": "@local/dsh-mys-checkin",
+  "version": "0.1.0",
+  "private": true,
+  "description": "米游社每日自动签到：扫码登录、时间窗口内随机执行、失败提示与防检测节奏。",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "lib",
+    "cordis.patch.yml",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "miyoushe",
+    "mihoyo",
+    "checkin"
+  ],
+  "author": "veer-li9",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/veer-li9/dsh-mys-checkin.git"
+  },
+  "bugs": {
+    "url": "https://github.com/veer-li9/dsh-mys-checkin/issues"
+  },
+  "homepage": "https://github.com/veer-li9/dsh-mys-checkin#readme",
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-settings",
+        "@deepseek-ai/dsh-client-ui-settings-general"
+      ]
+    }
+  }
+}

@@ -1,0 +1,21 @@
+# Dependencies (the plugin has none, but keep the rule for tooling)
+node_modules/
+
+# Runtime state: contains the Miyoushe login cookies in plain text
+state.json
+state.*.json
+*.log
+boot.log
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.swp
+
+# Local scratch
+coverage/
+tmp/
+*.zip

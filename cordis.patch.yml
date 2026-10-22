@@ -1,0 +1,5 @@
+# 米游社签到 bundle 层：把宿主插件插入 profile 的配置树。
+# 安装后会出现在「设置 → 米游社」中，客户端半随之挂载。
+- insert:
+    - id: mys-checkin
+      name: '@local/dsh-mys-checkin'
