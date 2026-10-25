@@ -1,6 +1,6 @@
 {
   "name": "@local/dsh-mys-checkin",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": true,
   "description": "米游社每日自动签到（DSH 侧边栏面板）：扫码登录、窗口内随机执行、失败提示与防检测节奏。",
   "type": "module",

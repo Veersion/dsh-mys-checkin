@@ -108,10 +108,10 @@ function installFakeNetwork(options = {}) {
       )
     }
     if (url.includes('/getCookieAccountInfoBySToken')) {
-      return jsonResponse({ retcode: 0, message: 'ok', data: { uid: '100200300', cookie_token: 'v2_cookie' } })
+      return jsonResponse({ retcode: 0, message: 'ok', data: { uid: '100200300', cookie_token: options.v1Tokens === true ? 'v1_cookie' : 'v2_cookie' } })
     }
     if (url.includes('/getLTokenBySToken')) {
-      return jsonResponse({ retcode: 0, message: 'ok', data: { ltoken: 'v2_ltoken' } })
+      return jsonResponse({ retcode: 0, message: 'ok', data: { ltoken: options.v1Tokens === true ? 'v1_ltoken' : 'v2_ltoken' } })
     }
     if (url.includes('/binding/api/getUserGameRolesByCookie')) {
       const biz = new URL(url).searchParams.get('game_biz')
@@ -229,6 +229,30 @@ test('App-channel login turns a stoken-only confirmation into a renewable sessio
   assert.notEqual(after.login.lastRefreshAt, null)
   assert.equal(service.state.auth.cookies.ltoken_v2, 'v2_ltoken')
   assert.equal(service.state.auth.cookies.cookie_token_v2, 'v2_cookie')
+})
+
+test('App-channel login pairs a V1 ltoken with ltuid/account_id', async (t) => {
+  freshHome()
+  const network = installFakeNetwork({ stokenOnly: true, v1Tokens: true })
+  t.after(() => network.restore())
+
+  const ctx = createCtx()
+  const service = new MysService(ctx, {})
+  t.after(() => service.dispose())
+
+  const { confirmed } = await completeLogin(service)
+  assert.equal(confirmed.state, 'confirmed')
+
+  const cookies = service.state.auth.cookies
+  assert.equal(cookies.ltoken, 'v1_ltoken')
+  assert.equal(cookies.cookie_token, 'v1_cookie')
+  assert.equal(cookies.ltuid, '100200300')
+  assert.equal(cookies.account_id, '100200300')
+
+  // The verification call proves the V1 pair actually travels on the wire.
+  const binding = network.calls.filter((call) => call.url.includes('/binding/api/getUserGameRolesByCookie')).at(-1)
+  assert.match(binding.headers.Cookie, /ltuid=100200300/)
+  assert.match(binding.headers.Cookie, /ltoken=v1_ltoken/)
 })
 
 test('login falls back to the web channel when the App channel cannot create a ticket', async (t) => {
@@ -349,4 +373,52 @@ test('expired session marks the banner and stops the run', async (t) => {
   assert.equal(status.lastError.code, 'LOGIN_EXPIRED')
   assert.equal(status.lastResult.ok, false)
   assert.equal(status.lastResult.results[0].outcome, 'expired')
+})
+
+test('stored 0.2.0 credentials get their missing V1 id aliases repaired on load', async (t) => {
+  const home = freshHome()
+  fs.mkdirSync(path.join(home, 'mys-checkin'), { recursive: true })
+  fs.writeFileSync(path.join(home, 'mys-checkin', 'state.json'), JSON.stringify({
+    version: 1,
+    auth: {
+      cookies: { stoken_v2: 'v2_s', ltoken: 'v1_l', ltuid_v2: '100200300', ltmid_v2: 'mid_9000' },
+      mid: 'mid_9000',
+      aid: '100200300',
+      stuid: '100200300',
+      accountName: 'veer',
+      loginAt: 1,
+      lastRefreshAt: null,
+    },
+    runtime: { lastError: { code: 'LOGIN_EXPIRED', message: 'stale -100', at: 1 }, log: [] },
+  }))
+
+  const ctx = createCtx()
+  const service = new MysService(ctx, {})
+  t.after(() => service.dispose())
+
+  assert.equal(service.state.auth.cookies.ltuid, '100200300')
+  assert.equal(service.state.auth.cookies.account_id, '100200300')
+  // The -100 was caused by the missing alias, not by an expired session.
+  assert.equal(service.state.runtime.lastError, null)
+  assert.equal((await service.routeStatus()).login.state, 'active')
+})
+
+test('delete login clears the stored credentials', async (t) => {
+  freshHome()
+  const network = installFakeNetwork()
+  t.after(() => network.restore())
+
+  const ctx = createCtx()
+  const service = new MysService(ctx, {})
+  t.after(() => service.dispose())
+
+  await completeLogin(service)
+  assert.notEqual(service.state.auth, null)
+
+  const deleted = await service.routeLogout(new Request('http://x/api/mys/logout', { method: 'POST', body: '{}' }))
+  assert.equal(deleted.ok, true)
+  assert.equal(service.state.auth, null)
+  const status = await service.routeStatus()
+  assert.equal(status.login.state, 'anonymous')
+  assert.equal(status.login.hasStoken, false)
 })

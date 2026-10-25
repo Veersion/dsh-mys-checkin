@@ -159,6 +159,9 @@ window.__ModuleLoader__.load({
       noStoken: '当前凭据不含 SToken，无法自动续期。',
       noStokenHint: '重新扫码会走 App 通道，获取可自动续期的 SToken。',
       upgradeLogin: '重新扫码获取 SToken',
+      deleteLogin: '删除登录',
+      deleteConfirm: '再次点击确认删除',
+      loginDeleted: '登录数据已删除',
       logout: '退出登录',
       stateAnonymous: '未登录',
       stateActive: '已登录',
@@ -309,6 +312,9 @@ window.__ModuleLoader__.load({
       noStoken: 'This credential has no SToken, so it cannot be renewed automatically.',
       noStokenHint: 'Scan again to use the app channel and obtain one.',
       upgradeLogin: 'Scan again for SToken',
+      deleteLogin: 'Delete login',
+      deleteConfirm: 'Click again to delete',
+      loginDeleted: 'Login data deleted',
       logout: 'Sign out',
       stateAnonymous: 'Not signed in',
       stateActive: 'Signed in',
@@ -756,14 +762,17 @@ window.__ModuleLoader__.load({
           try {
             const body = await requestJson(`login/poll?ticket=${encodeURIComponent(qr.ticket)}`)
             if (stopped) return
-            if (body.state === 'confirmed') {
-              finished = true
-              setQr(null)
-              noticeRef.current?.(t('qrConfirmed'))
-              void refreshRef.current?.()
-            } else if (body.state === 'expired') {
+            if (body.state === 'expired') {
               finished = true
               setQr((current) => (current === null ? null : { ...current, state: 'expired' }))
+            } else if (body?.ok === false) {
+              finished = true
+              setQr((current) => (current === null ? null : { ...current, state: 'error', message: body.error?.message }))
+            } else if (body.state === 'confirmed') {
+              finished = true
+              setQr(null)
+              noticeRef.current?.(body.warning ? String(body.warning) : t('qrConfirmed'))
+              void refreshRef.current?.()
             } else if (body.state === 'error') {
               finished = true
               setQr((current) => (current === null ? null : { ...current, state: 'error', message: body.error?.message }))
@@ -887,6 +896,7 @@ window.__ModuleLoader__.load({
       const [draft, setDraft] = useState(null)
       const [busy, setBusy] = useState({ run: false, verify: false, refresh: false })
       const [verifyInfo, setVerifyInfo] = useState(null)
+      const [deleteArmed, setDeleteArmed] = useState(false)
       const dirtyRef = useRef(false)
       const saveTimerRef = useRef(null)
       const draftRef = useRef(null)
@@ -910,6 +920,13 @@ window.__ModuleLoader__.load({
         const timer = setTimeout(() => setNotice(null), 2600)
         return () => clearTimeout(timer)
       }, [notice])
+
+      // A stray click on "delete" must not wipe the session: disarm after 6 s.
+      useEffect(() => {
+        if (!deleteArmed) return undefined
+        const timer = setTimeout(() => setDeleteArmed(false), 6000)
+        return () => clearTimeout(timer)
+      }, [deleteArmed])
 
       const scheduleSave = useCallback((next) => {
         dirtyRef.current = true
@@ -943,12 +960,21 @@ window.__ModuleLoader__.load({
         try {
           await callJson('logout', { method: 'POST', body: '{}' })
           setVerifyInfo(null)
-          setNotice(t('logout'))
+          setNotice(t('loginDeleted'))
           void refresh()
         } catch (failure) {
           setNotice(fill(t('saveFailed'), { message: String(failure?.message ?? failure) }))
         }
       }, [refresh, t])
+
+      const deleteLogin = useCallback(() => {
+        if (!deleteArmed) {
+          setDeleteArmed(true)
+          return
+        }
+        setDeleteArmed(false)
+        void logout()
+      }, [deleteArmed, logout])
 
       const runNow = useCallback(async () => {
         setBusy((current) => ({ ...current, run: true }))
@@ -1094,11 +1120,12 @@ window.__ModuleLoader__.load({
             h('div', { className: 'mys-actions' },
               login.state === 'active' && login.hasStoken !== false
                 ? h(Button, { onClick: refreshCredentials, disabled: busy.refresh }, busy.refresh ? t('refreshing') : t('refresh'))
-                : login.state === 'active'
-                  ? h(Button, { variant: 'primary', onClick: loginFlow.startLogin, disabled: loginFlow.busy }, loginFlow.busy ? t('qrChecking') : t('upgradeLogin'))
-                  : h(Button, { variant: 'primary', onClick: loginFlow.startLogin, disabled: loginFlow.busy }, loginFlow.busy ? t('qrChecking') : t('login')),
-              login.state === 'active'
-                ? h(Button, { variant: 'danger', onClick: logout }, t('logout'))
+                : h(Button, { variant: 'primary', onClick: loginFlow.startLogin, disabled: loginFlow.busy },
+                    loginFlow.busy
+                      ? t('qrChecking')
+                      : login.state === 'active' ? t('upgradeLogin') : login.state === 'expired' ? t('relogin') : t('login')),
+              login.state !== 'anonymous'
+                ? h(Button, { variant: 'danger', onClick: deleteLogin }, deleteArmed ? t('deleteConfirm') : t('deleteLogin'))
                 : null)),
           login.state !== 'anonymous' ? h('div', { className: 'mys-meta' },
             [login.loginAt ? `${t('loginAt')} ${formatTime(login.loginAt)}` : null,

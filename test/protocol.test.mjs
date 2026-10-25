@@ -5,6 +5,7 @@ import { normalizeConfig, defaultConfig, enabledGames } from '../lib/config.js'
 import {
   cookieHeader,
   credentialCookies,
+  ensureIdentityCookies,
   hasSession,
   parseSetCookie,
   randomToken,
@@ -75,6 +76,22 @@ test('sessionStoken treats a blank value as absent', () => {
   assert.equal(sessionStoken({ stoken_v2: '   ' }), null)
   assert.equal(sessionStoken({ ltoken_v2: 'v2_l' }), null)
   assert.equal(sessionStoken(null), null)
+})
+
+test('ensureIdentityCookies fills the V1 and V2 aliases without overwriting', () => {
+  const cookies = { ltoken: 'v1_l', ltuid_v2: '111', ltmid_v2: 'mid_a' }
+  ensureIdentityCookies(cookies, { aid: '111', mid: 'mid_a' })
+  assert.equal(cookies.ltuid, '111')
+  assert.equal(cookies.account_id, '111')
+  assert.equal(cookies.account_id_v2, '111')
+  assert.equal(cookies.stuid, '111')
+  assert.equal(cookies.mid, 'mid_a')
+  assert.equal(cookies.account_mid_v2, 'mid_a')
+
+  const kept = { ltuid: 'keep', account_id: 'keep2' }
+  ensureIdentityCookies(kept, { aid: '999' })
+  assert.equal(kept.ltuid, 'keep')
+  assert.equal(kept.account_id, 'keep2')
 })
 
 test('normalizeConfig repairs broken windows instead of throwing', () => {

@@ -2,6 +2,20 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [0.2.1] - 2026-10-25
+
+修复 App 通道登录后所有签到请求都返回 `-100` 的问题，并新增「删除登录」。
+
+### 修复
+
+- App 通道拿到的 `getLTokenBySToken` 是 V1 `ltoken`，需要与 `ltuid` / `account_id` 配对；此前只存了 `ltuid_v2`，导致绑定查询能过、`luna` 签到却报 `-100`。登录、续期与加载旧状态时都会补齐 V1/V2 的 ID Cookie 别名。
+- 启动时自动修复 0.2.0 存下的凭据，并清除由该问题造成的「登录失效」标记，无需重新扫码。
+- 扫码确认后的会话校验若被服务端判定为 `-100`，不再保留这份无效登录，直接提示重新扫码。
+
+### 新增
+
+- 「删除登录」：账号卡上的危险操作，点击一次进入确认态、再点一次删除；登录失效状态下也可使用。删除后同时清空凭据、错误提示与角色缓存。
+
 ## [0.2.0] - 2026-10-25
 
 插件从「设置分区」改为「侧边栏任务面板」，并修复扫码登录拿不到 SToken、自动续期永远不可用的问题。
@@ -43,5 +57,6 @@
 - 内置零依赖二维码编码器，以及带独立解码器的自检测试。
 - 单元测试与假接口端到端测试；GitHub Actions 在 Node 22 / 24 上运行。
 
+[0.2.1]: https://github.com/Veersion/dsh-mys-checkin/releases/tag/v0.2.1
 [0.2.0]: https://github.com/Veersion/dsh-mys-checkin/releases/tag/v0.2.0
 [0.1.0]: https://github.com/Veersion/dsh-mys-checkin/releases/tag/v0.1.0
