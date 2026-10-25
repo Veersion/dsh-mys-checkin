@@ -51,14 +51,30 @@ const QR_COOKIES = [
   'cookie_token_v2=v2_cookie; Path=/',
 ]
 
+/** What the web channel returns: signing cookies, but no stoken. */
+const QR_WEB_COOKIES = [
+  'ltoken_v2=v2_ltoken; Path=/; Domain=.miyoushe.com',
+  'ltuid_v2=100200300; Path=/',
+  'ltmid_v2=mid_9000; Path=/',
+  'cookie_token_v2=v2_cookie; Path=/',
+  'account_id_v2=100200300; Path=/',
+  'account_mid_v2=mid_9000; Path=/',
+]
+
 function jsonResponse(body, extraHeaders = []) {
   const headers = new Headers([['content-type', 'application/json']])
   for (const [name, value] of extraHeaders) headers.append(name, value)
   return new Response(JSON.stringify(body), { status: 200, headers })
 }
 
-/** Fake miHoYo backend: the QR poll transitions Created → Scanned → Confirmed. */
-function installFakeNetwork() {
+/**
+ * Fake miHoYo backend: the QR poll transitions Created → Scanned → Confirmed.
+ *
+ * `stokenOnly` mimics the App channel confirming with an inline stoken and no
+ * cookies; `webOnly` mimics the web channel (cookies, no stoken); `appCreateFails`
+ * forces the web fallback.
+ */
+function installFakeNetwork(options = {}) {
   const calls = []
   let polls = 0
   const original = globalThis.fetch
@@ -66,16 +82,36 @@ function installFakeNetwork() {
     const url = String(input)
     calls.push({ url, method: init.method ?? 'GET', headers: init.headers ?? {}, body: init.body })
     if (url.includes('/createQRLogin')) {
+      if (options.appCreateFails === true && url.includes('/app/createQRLogin')) {
+        return jsonResponse({ retcode: -3001, message: 'app channel unavailable', data: null })
+      }
       return jsonResponse({ retcode: 0, message: 'ok', data: { url: 'https://user.mihoyo.com/qr_login/?ticket=tk1', ticket: 'tk1' } })
     }
     if (url.includes('/queryQRLoginStatus')) {
       polls += 1
       if (polls === 1) return jsonResponse({ retcode: 0, message: 'ok', data: { status: 'Created', user_info: null } })
       if (polls === 2) return jsonResponse({ retcode: 0, message: 'ok', data: { status: 'Scanned', user_info: null } })
+      if (options.stokenOnly === true) {
+        return jsonResponse({
+          retcode: 0,
+          message: 'ok',
+          data: {
+            status: 'Confirmed',
+            user_info: { aid: '100200300', mid: 'mid_9000', nickname: '旅行者' },
+            tokens: [{ token_type: 1, token: 'v2_stoken' }],
+          },
+        })
+      }
       return jsonResponse(
         { retcode: 0, message: 'ok', data: { status: 'Confirmed', user_info: { aid: '100200300', mid: 'mid_9000', nickname: '旅行者' } } },
-        QR_COOKIES.map((line) => ['set-cookie', line]),
+        (options.webOnly === true ? QR_WEB_COOKIES : QR_COOKIES).map((line) => ['set-cookie', line]),
       )
+    }
+    if (url.includes('/getCookieAccountInfoBySToken')) {
+      return jsonResponse({ retcode: 0, message: 'ok', data: { uid: '100200300', cookie_token: 'v2_cookie' } })
+    }
+    if (url.includes('/getLTokenBySToken')) {
+      return jsonResponse({ retcode: 0, message: 'ok', data: { ltoken: 'v2_ltoken' } })
     }
     if (url.includes('/binding/api/getUserGameRolesByCookie')) {
       const biz = new URL(url).searchParams.get('game_biz')
@@ -91,6 +127,12 @@ function installFakeNetwork() {
         })
       }
       return jsonResponse({ retcode: 0, message: 'ok', data: { list: [] } })
+    }
+    if (url.includes('/user/api/getUserFullInfo')) {
+      return jsonResponse({ retcode: 0, message: 'ok', data: { user: { user_info: { nickname: '米游社昵称', avatar_url: 'https://example.com/a.png' } } } })
+    }
+    if (url.includes('/event/luna/') && url.includes('/info?')) {
+      return jsonResponse({ retcode: 0, message: 'ok', data: { is_sign: false, first_bind: false, total_sign_day: 1 } })
     }
     if (url.includes('/event/luna/') && url.endsWith('/sign')) {
       return jsonResponse({ retcode: 0, message: 'ok', data: { success: 0, awards: [{ name: '原石', cnt: 20 }] } })
@@ -147,8 +189,10 @@ test('service wiring: routes, login, status', async (t) => {
 
   const after = await service.routeStatus()
   assert.equal(after.login.state, 'active')
-  assert.equal(after.login.accountName, '旅行者')
-  assert.equal(after.login.uid, 'mid_9000')
+  assert.equal(after.login.accountName, '米游社昵称')
+  // The numeric miHoYo UID, never the opaque `mid`.
+  assert.equal(after.login.uid, '100200300')
+  assert.equal(after.login.avatar, 'https://example.com/a.png')
   assert.equal(after.login.hasStoken, true)
   // The wire payload must never carry the cookie itself.
   assert.equal(JSON.stringify(after).includes('v2_ltoken'), false)
@@ -161,6 +205,50 @@ test('service wiring: routes, login, status', async (t) => {
     assert.equal(call.headers['x-rpc-app_version'], '2.109.0')
     assert.match(call.headers.Cookie, /ltoken_v2=v2_ltoken/)
   }
+})
+
+test('App-channel login turns a stoken-only confirmation into a renewable session', async (t) => {
+  freshHome()
+  const network = installFakeNetwork({ stokenOnly: true })
+  t.after(() => network.restore())
+
+  const ctx = createCtx()
+  const service = new MysService(ctx, {})
+  t.after(() => service.dispose())
+
+  const { confirmed } = await completeLogin(service)
+  assert.equal(confirmed.state, 'confirmed')
+
+  // The login must start on the App channel, then derive ltoken/cookie_token.
+  assert.equal(network.calls.some((call) => call.url.includes('/app/createQRLogin')), true)
+  assert.equal(network.calls.some((call) => call.url.includes('/getLTokenBySToken')), true)
+
+  const after = await service.routeStatus()
+  assert.equal(after.login.state, 'active')
+  assert.equal(after.login.hasStoken, true)
+  assert.notEqual(after.login.lastRefreshAt, null)
+  assert.equal(service.state.auth.cookies.ltoken_v2, 'v2_ltoken')
+  assert.equal(service.state.auth.cookies.cookie_token_v2, 'v2_cookie')
+})
+
+test('login falls back to the web channel when the App channel cannot create a ticket', async (t) => {
+  freshHome()
+  const network = installFakeNetwork({ appCreateFails: true, webOnly: true })
+  t.after(() => network.restore())
+
+  const ctx = createCtx()
+  const service = new MysService(ctx, {})
+  t.after(() => service.dispose())
+
+  const { confirmed } = await completeLogin(service)
+  assert.equal(confirmed.state, 'confirmed')
+  assert.equal(network.calls.some((call) => call.url.includes('/app/createQRLogin')), true)
+  assert.equal(network.calls.some((call) => call.url.includes('/web/createQRLogin')), true)
+
+  const after = await service.routeStatus()
+  assert.equal(after.login.state, 'active')
+  // A web credential signs fine but cannot be renewed; the UI must say so.
+  assert.equal(after.login.hasStoken, false)
 })
 
 test('service runs one check-in per enabled game and records the result', async (t) => {
@@ -191,6 +279,9 @@ test('service runs one check-in per enabled game and records the result', async 
   assert.equal(status.lastResult.results.length, 1)
   assert.equal(status.lastResult.results[0].outcome, 'signed')
   assert.equal(status.lastResult.results[0].game, 'genshin')
+  assert.equal(status.lastResult.results[0].uid, '100000001')
+  assert.equal(status.lastResult.results[0].totalDays, 2)
+  assert.deepEqual(status.lastResult.results[0].awards, [{ name: '原石', cnt: 20 }])
   assert.notEqual(status.schedule.lastRunDate, null)
   assert.equal(status.lastError, null)
 

@@ -1,8 +1,8 @@
 {
   "name": "@local/dsh-mys-checkin",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
-  "description": "米游社每日自动签到：扫码登录、时间窗口内随机执行、失败提示与防检测节奏。",
+  "description": "米游社每日自动签到（DSH 侧边栏面板）：扫码登录、窗口内随机执行、失败提示与防检测节奏。",
   "type": "module",
   "main": "index.js",
   "exports": {
@@ -27,16 +27,16 @@
     "mihoyo",
     "checkin"
   ],
-  "author": "veer-li9",
+  "author": "Veersion",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/veer-li9/dsh-mys-checkin.git"
+    "url": "git+https://github.com/Veersion/dsh-mys-checkin.git"
   },
   "bugs": {
-    "url": "https://github.com/veer-li9/dsh-mys-checkin/issues"
+    "url": "https://github.com/Veersion/dsh-mys-checkin/issues"
   },
-  "homepage": "https://github.com/veer-li9/dsh-mys-checkin#readme",
+  "homepage": "https://github.com/Veersion/dsh-mys-checkin#readme",
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"

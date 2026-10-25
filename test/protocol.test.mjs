@@ -8,6 +8,7 @@ import {
   hasSession,
   parseSetCookie,
   randomToken,
+  sessionStoken,
   signDs1,
   signDs2,
 } from '../lib/ds.js'
@@ -68,14 +69,33 @@ test('cookieHeader joins only present values', () => {
   assert.equal(cookieHeader(null), '')
 })
 
+test('sessionStoken treats a blank value as absent', () => {
+  assert.equal(sessionStoken({ stoken_v2: 'v2_x' }), 'v2_x')
+  assert.equal(sessionStoken({ stoken: 'v1_x' }), 'v1_x')
+  assert.equal(sessionStoken({ stoken_v2: '   ' }), null)
+  assert.equal(sessionStoken({ ltoken_v2: 'v2_l' }), null)
+  assert.equal(sessionStoken(null), null)
+})
+
 test('normalizeConfig repairs broken windows instead of throwing', () => {
   const config = normalizeConfig({ windows: [{ start: '25:00', end: '26:00' }, { start: '18:00', end: '18:30' }] })
   assert.deepEqual(config.windows, [{ start: '18:00', end: '18:30' }])
 })
 
-test('normalizeConfig forces start < end and a sane duration', () => {
-  const config = normalizeConfig({ windows: [{ start: '19:00', end: '18:00' }, { start: '10:00', end: '15:00' }] })
-  assert.deepEqual(config.windows, defaultConfig().windows)
+test('normalizeConfig snaps an inverted window to one minute', () => {
+  const config = normalizeConfig({ windows: [{ start: '19:00', end: '18:00' }] })
+  assert.deepEqual(config.windows, [{ start: '19:00', end: '19:01' }])
+})
+
+test('normalizeConfig keeps duplicate windows', () => {
+  const config = normalizeConfig({ windows: [{ start: '18:00', end: '18:30' }, { start: '18:00', end: '18:30' }] })
+  assert.equal(config.windows.length, 2)
+  assert.deepEqual(config.windows[0], { start: '18:00', end: '18:30' })
+})
+
+test('normalizeConfig clamps an over-long window instead of dropping it', () => {
+  const config = normalizeConfig({ windows: [{ start: '10:00', end: '20:00' }] })
+  assert.deepEqual(config.windows, [{ start: '10:00', end: '14:00' }])
 })
 
 test('normalizeConfig clamps numeric ranges', () => {

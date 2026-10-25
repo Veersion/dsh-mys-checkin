@@ -2,6 +2,32 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [0.2.0] - 2026-10-25
+
+插件从「设置分区」改为「侧边栏任务面板」，并修复扫码登录拿不到 SToken、自动续期永远不可用的问题。
+
+### 新增
+
+- 左侧栏「米游社签到」任务面板（圆圈对勾图标，与「自动化任务」同级）：账号、任务状态、运行结果、时间窗口、游戏、高级设置、运行日志全部集中在这一页；DSH 设置页不再新增分区。
+- 任务卡：已启用 / 已暂停 / 登录失效状态、运行频率、下次运行、上次运行摘要，以及「立即运行」「暂停 / 启用」。
+- 运行结果：顶部汇总卡（今日签到账号数、是否自动签到、签到时间、`已完成/总数`），每个游戏一张卡，列出 UID、签到状态、今日奖励、累计签到天数。
+- 账号卡显示米游社昵称、数字 UID 与社区头像（`getUserFullInfo`，DS2 签名；查询失败回退为游戏内昵称）。
+- 签到前先查 `luna/info`：已签到直接跳过、首次绑定给出提示，并取得累计签到天数。
+- 时间窗口编辑：反向时间自动修正为 1 分钟窗口，超长窗口截断为 4 小时，允许重复时间；「添加窗口」在上一个窗口基础上后移 1 小时。
+
+### 修复
+
+- 登录优先走 App 扫码通道（`/ma-cn-passport/app/createQRLogin`，二维码带 `token_types=1`），该通道才会下发 SToken；网页通道降级为失败兜底。
+- App 通道只回 SToken 时，登录阶段自动调用 `getLTokenBySToken` / `getCookieAccountInfoBySToken` 补齐 `ltoken` 与 `cookie_token`，再校验会话。
+- 续期请求同时携带 `stoken` / `uid` 查询参数，并区分网络失败与 SToken 失效，网络失败不再误标登录失效。
+- 空字符串不再被当成有效 SToken；网页凭据在面板上明确提示「无法自动续期」，并提供重新扫码入口。
+- 内联 token 按 `token_type` 与 `v2_` 前缀落到正确的 Cookie 名（V1/V2 均可）。
+- 账号区不再显示内部 `mid`，改为米游社数字 UID（`ltuid`）。
+
+### 升级提示
+
+- 0.1.0 的登录是网页凭据，不含 SToken，无法自动续期；升级后请重新扫码一次。
+
 ## [0.1.0] - 2026-10-23
 
 首个可用版本。
@@ -17,4 +43,5 @@
 - 内置零依赖二维码编码器，以及带独立解码器的自检测试。
 - 单元测试与假接口端到端测试；GitHub Actions 在 Node 22 / 24 上运行。
 
-[0.1.0]: https://github.com/veer-li9/dsh-mys-checkin/releases/tag/v0.1.0
+[0.2.0]: https://github.com/Veersion/dsh-mys-checkin/releases/tag/v0.2.0
+[0.1.0]: https://github.com/Veersion/dsh-mys-checkin/releases/tag/v0.1.0

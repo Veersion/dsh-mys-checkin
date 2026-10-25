@@ -100,6 +100,46 @@ window.__ModuleLoader__.load({
 .mys-details[open] summary{margin-bottom:8px}
 .mys-hint{font-size:12px;line-height:18px;color:var(--dsw-alias-label-tertiary)}
 .mys-list{display:flex;flex-direction:column;gap:8px}
+.mys-page{box-sizing:border-box;height:100%;overflow:auto;color:var(--dsw-alias-label-primary);padding:28px clamp(24px,4vw,48px) 48px;display:flex;flex-direction:column;gap:18px}
+.mys-page>*{width:100%;max-width:880px}
+.mys-page-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;gap:16px}
+.mys-page-title{margin:0;font-size:20px;font-weight:500;line-height:28px}
+.mys-page-intro{margin:4px 0 0;font-size:13px;line-height:20px;color:var(--dsw-alias-label-secondary)}
+.mys-task-list{display:flex;flex-direction:column;gap:10px}
+.mys-task-card{box-sizing:border-box;display:flex;align-items:flex-start;gap:16px;border:.5px solid var(--dsw-alias-border-l2);border-radius:var(--dsw-radius-xl,12px);background:var(--dsw-alias-bg-layer-1,transparent);padding:14px 16px}
+.mys-task-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
+.mys-task-title{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:500;line-height:22px;flex-wrap:wrap}
+.mys-task-meta{font-size:12px;line-height:18px;color:var(--dsw-alias-label-tertiary)}
+.mys-task-actions{display:flex;flex:none;flex-wrap:wrap;gap:8px;align-items:center}
+.mys-page-section{display:flex;flex-direction:column;gap:10px}
+.mys-page-section h2{margin:0;font-size:14px;font-weight:500;line-height:22px}
+.mys-avatar{width:36px;height:36px;border-radius:50%;object-fit:cover;flex:none;background:var(--dsw-alias-bg-layer-3);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;color:var(--dsw-alias-label-secondary)}
+.mys-account-text{display:flex;flex-direction:column;gap:2px;min-width:0}
+.mys-account-line{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.mys-account-name{font-size:14px;font-weight:500;line-height:20px}
+.mys-run{display:flex;flex-direction:column;gap:12px}
+.mys-summary{position:relative;display:flex;align-items:center;gap:14px;box-sizing:border-box;border:.5px solid var(--dsw-alias-border-l2);border-radius:var(--dsw-radius-xl,14px);padding:16px;background:linear-gradient(135deg,color-mix(in srgb,var(--dsw-alias-button-primary-fill,#4d6bfe) 12%,transparent),transparent 62%),var(--dsw-alias-bg-layer-1,transparent)}
+.mys-summary-mark{width:44px;height:44px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff;background:var(--dsw-alias-button-primary-fill,#4d6bfe)}
+.mys-summary-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.mys-summary-title{font-size:18px;font-weight:600;line-height:26px}
+.mys-summary-sub{font-size:12px;line-height:18px;color:var(--dsw-alias-label-secondary)}
+.mys-summary-score{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:4px;text-align:right}
+.mys-summary-count{font-size:30px;font-weight:700;line-height:1;color:var(--dsw-alias-button-primary-fill,#4d6bfe);font-variant-numeric:tabular-nums}
+.mys-summary-badge{font-size:11px;line-height:18px;padding:0 10px;border-radius:999px;background:rgba(34,160,107,.15);color:#177a50}
+.mys-summary-badge[data-done=false]{background:rgba(214,148,0,.16);color:#8a5b00}
+.mys-game{border:.5px solid var(--dsw-alias-border-l2);border-radius:var(--dsw-radius-lg,12px);overflow:hidden;background:var(--dsw-alias-bg-layer-1,transparent)}
+.mys-game-head{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:.5px solid var(--dsw-alias-border-l2);background:color-mix(in srgb,var(--mys-accent,#6b7280) 8%,transparent)}
+.mys-game-bar{width:4px;height:18px;border-radius:2px;flex:none;background:var(--mys-accent,#6b7280)}
+.mys-game-name{font-size:15px;font-weight:600;line-height:22px}
+.mys-game-count{font-size:11px;line-height:18px;padding:0 8px;border-radius:999px;border:.5px solid color-mix(in srgb,var(--mys-accent,#6b7280) 45%,transparent);color:var(--mys-accent,#6b7280)}
+.mys-game-table{width:100%;border-collapse:collapse;font-size:12px}
+.mys-game-table th{font-weight:400;color:var(--dsw-alias-label-tertiary);padding:6px 10px;border-bottom:.5px solid var(--dsw-alias-border-l2);text-align:center}
+.mys-game-table td{padding:8px 10px;text-align:center;font-variant-numeric:tabular-nums}
+.mys-status{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--dsw-alias-state-success-primary,#22a06b)}
+.mys-status[data-outcome=captcha],.mys-status[data-outcome=first-bind],.mys-status[data-outcome=not-bound]{color:var(--dsw-alias-state-warn-primary,#8a5b00)}
+.mys-status[data-outcome=expired],.mys-status[data-outcome=error]{color:var(--dsw-alias-state-error-primary,#a3231c)}
+.mys-status[data-outcome=no-role]{color:var(--dsw-alias-label-tertiary)}
+.mys-run-foot{text-align:center;font-size:12px;line-height:18px;color:var(--dsw-alias-label-tertiary);padding:2px 0 4px}
 .mys-badge{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:55;display:flex;align-items:center;gap:8px;max-width:min(560px,calc(100vw - 32px));box-sizing:border-box;padding:6px 10px;border-radius:999px;font-size:12px;line-height:18px;background:#a3231c;color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.28);pointer-events:auto}
 .mys-badge-text{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mys-badge-close{flex:none;border:none;background:transparent;color:inherit;font:inherit;cursor:pointer;opacity:.8;padding:0 2px}
@@ -111,16 +151,19 @@ window.__ModuleLoader__.load({
       title: '米游社签到',
       intro: '每天在你设定的时间窗口内随机挑一个时刻，为已绑定的米哈游游戏自动签到。登录凭据只保存在本机。',
       account: '账号',
-      accountDesc: '使用米游社 App 扫码登录；登录失效时会在这里提示。',
+      accountDesc: '使用米游社 App 扫码登录；App 通道会同时获取可自动续期的 SToken。',
       login: '扫码登录',
       relogin: '重新扫码',
       refresh: '续期凭据',
       refreshing: '续期中…',
+      noStoken: '当前凭据不含 SToken，无法自动续期。',
+      noStokenHint: '重新扫码会走 App 通道，获取可自动续期的 SToken。',
+      upgradeLogin: '重新扫码获取 SToken',
       logout: '退出登录',
       stateAnonymous: '未登录',
       stateActive: '已登录',
       stateExpired: '登录已失效',
-      uid: 'UID',
+      uid: '米游社 UID',
       loginAt: '登录于',
       lastRefresh: '最近续期',
       never: '从未',
@@ -137,7 +180,7 @@ window.__ModuleLoader__.load({
       autoDesc: '开启后，每天只在时间窗口内执行一次；随机时刻可以避免整点请求特征。',
       enabled: '启用自动签到',
       windows: '时间窗口',
-      windowsDesc: '每个窗口内随机选择一个时刻执行。填写本地时间。',
+      windowsDesc: '每个窗口内随机选择一个时刻执行。开始时间晚于结束时间时，自动把结束时间设为开始时间 +1 分钟。',
       addWindow: '添加窗口',
       remove: '删除',
       runWhenMissed: '错过窗口后补跑',
@@ -216,7 +259,41 @@ window.__ModuleLoader__.load({
       badgeCaptcha: '米游社：需要人机验证，今日签到已停止',
       badgeRun: '米游社：自动签到失败',
       badgeDismiss: '忽略本次提示',
-      badgeOpen: '在「设置 → 米游社」中处理',
+      badgeOpen: '在左侧栏「米游社签到」中处理',
+      panel: '米游社签到',
+      taskPanelTitle: '米游社签到',
+      taskPanelIntro: '每天在设定窗口内随机时刻为已绑定的米哈游游戏签到；登录、时间窗口、游戏与高级参数都在这里管理。',
+      taskName: '每日签到',
+      taskFrequency: '运行频率',
+      taskRandom: '（窗口内随机）',
+      taskNextRun: '下次运行',
+      taskLastRun: '上次运行',
+      taskPause: '暂停',
+      taskResume: '启用',
+      taskRunHistory: '运行记录',
+      taskNoHistory: '还没有运行记录。',
+      taskStateActive: '已启用',
+      taskStatePaused: '已暂停',
+      taskStateAnonymous: '未登录',
+      taskStateExpired: '登录已失效',
+      taskResumed: '已启用自动签到',
+      taskPaused: '已暂停自动签到',
+      runTitle: '米游社游戏签到',
+      runSigned: '今日共签到',
+      runAccounts: '个账号',
+      runAuto: '是否自动签到',
+      runAt: '签到时间',
+      runDone: '已完成',
+      runPartial: '未完成',
+      runAccountUnit: '个账号',
+      colStatus: '签到状态',
+      colReward: '今日奖励',
+      colTotal: '累计签到',
+      runFooterDone: '所有账号今日签到已全部完成，记得明天再来哦！',
+      runFooterPartial: '部分账号还没完成，请看上方状态。',
+      yes: '是',
+      no: '否',
+      outcomeFirstBind: '待手动签到',
     }
 
     const en = {
@@ -224,16 +301,19 @@ window.__ModuleLoader__.load({
       title: 'miHoYo check-in',
       intro: 'Signs in to your bound miHoYo games once a day at a random moment inside your windows. Credentials stay on this machine.',
       account: 'Account',
-      accountDesc: 'Scan the QR code with the miHoYo app. Expiry is reported here.',
+      accountDesc: 'Scan the QR code with the miHoYo app; the app channel also fetches a renewable SToken.',
       login: 'Scan to sign in',
       relogin: 'Scan again',
       refresh: 'Refresh credentials',
       refreshing: 'Refreshing…',
+      noStoken: 'This credential has no SToken, so it cannot be renewed automatically.',
+      noStokenHint: 'Scan again to use the app channel and obtain one.',
+      upgradeLogin: 'Scan again for SToken',
       logout: 'Sign out',
       stateAnonymous: 'Not signed in',
       stateActive: 'Signed in',
       stateExpired: 'Session expired',
-      uid: 'UID',
+      uid: 'miHoYo UID',
       loginAt: 'Signed in',
       lastRefresh: 'Last refresh',
       never: 'never',
@@ -250,7 +330,7 @@ window.__ModuleLoader__.load({
       autoDesc: 'Runs once a day inside a window; the random moment avoids on-the-hour patterns.',
       enabled: 'Enable automatic check-in',
       windows: 'Time windows',
-      windowsDesc: 'One random moment inside each window. Local time.',
+      windowsDesc: 'One random moment inside each window. If the start is later than the end, the end snaps to the start + 1 minute.',
       addWindow: 'Add window',
       remove: 'Remove',
       runWhenMissed: 'Catch up when missed',
@@ -329,7 +409,41 @@ window.__ModuleLoader__.load({
       badgeCaptcha: 'miHoYo: human verification required',
       badgeRun: 'miHoYo: automatic check-in failed',
       badgeDismiss: 'Dismiss this notice',
-      badgeOpen: 'Resolve it in Settings → miHoYo',
+      badgeOpen: 'Resolve it in the sidebar panel “miHoYo check-in”',
+      panel: 'miHoYo check-in',
+      taskPanelTitle: 'miHoYo check-in',
+      taskPanelIntro: 'Signs in to your bound games once a day at a random moment inside your windows; account, windows, games and advanced options are all managed here.',
+      taskName: 'Daily check-in',
+      taskFrequency: 'Schedule',
+      taskRandom: ' (random inside the window)',
+      taskNextRun: 'Next run',
+      taskLastRun: 'Last run',
+      taskPause: 'Pause',
+      taskResume: 'Resume',
+      taskRunHistory: 'Run history',
+      taskNoHistory: 'No runs recorded yet.',
+      taskStateActive: 'Active',
+      taskStatePaused: 'Paused',
+      taskStateAnonymous: 'Not signed in',
+      taskStateExpired: 'Session expired',
+      taskResumed: 'Automatic check-in resumed',
+      taskPaused: 'Automatic check-in paused',
+      runTitle: 'miHoYo game check-in',
+      runSigned: 'Signed in today:',
+      runAccounts: 'accounts',
+      runAuto: 'Automatic',
+      runAt: 'At',
+      runDone: 'Done',
+      runPartial: 'Incomplete',
+      runAccountUnit: ' accounts',
+      colStatus: 'Status',
+      colReward: 'Today reward',
+      colTotal: 'Total days',
+      runFooterDone: 'All accounts are signed in for today — see you tomorrow!',
+      runFooterPartial: 'Some accounts are not finished; see the status above.',
+      yes: 'yes',
+      no: 'no',
+      outcomeFirstBind: 'Manual first sign-in',
     }
 
     const OUTCOME_TONE = {
@@ -339,6 +453,7 @@ window.__ModuleLoader__.load({
       captcha: 'warn',
       expired: 'error',
       'not-bound': 'warn',
+      'first-bind': 'warn',
       error: 'error',
     }
 
@@ -349,6 +464,7 @@ window.__ModuleLoader__.load({
       captcha: 'outcomeCaptcha',
       expired: 'outcomeExpired',
       'not-bound': 'outcomeNotBound',
+      'first-bind': 'outcomeFirstBind',
       error: 'outcomeError',
     }
 
@@ -416,6 +532,38 @@ window.__ModuleLoader__.load({
     function shortTime(value) {
       const text = formatTime(value)
       return text.replace(/^\d{4}[/-]/, '')
+    }
+
+    function clockToMinutes(text) {
+      const match = /^(\d{1,2}):(\d{2})$/.exec(String(text ?? '').trim())
+      if (match === null) return null
+      const hour = Number(match[1])
+      const minute = Number(match[2])
+      if (hour > 23 || minute > 59) return null
+      return hour * 60 + minute
+    }
+
+    function minutesToClock(minutes) {
+      const value = Math.max(0, Math.min(1439, Math.round(minutes)))
+      return `${String(Math.floor(value / 60)).padStart(2, '0')}:${String(value % 60).padStart(2, '0')}`
+    }
+
+    /** One accent per game, so a multi-game result list stays scannable. */
+    const GAME_ACCENT = {
+      genshin: '#4aa3df',
+      starrail: '#8b6cf0',
+      zzz: '#f08a3c',
+      honkai3: '#4d7ff0',
+      tears: '#d05a8a',
+      bh2: '#2fb3a6',
+    }
+
+    function awardsText(awards) {
+      if (!Array.isArray(awards) || awards.length === 0) return '—'
+      return awards
+        .filter((award) => award !== null && typeof award === 'object')
+        .map((award) => `${award.name ?? ''}${award.cnt === undefined ? '' : `×${award.cnt}`}`)
+        .join('、')
     }
 
     /**
@@ -532,6 +680,124 @@ window.__ModuleLoader__.load({
       return state
     }
 
+    /** Shared status polling: the settings page and the task panel read one payload. */
+    function useMysStatus(onData, initialStatus) {
+      const [status, setStatus] = useState(initialStatus ?? null)
+      const [error, setError] = useState(null)
+      const runningRef = useRef(false)
+      const onDataRef = useRef(onData)
+      onDataRef.current = onData
+
+      useEffect(() => {
+        runningRef.current = status?.running === true
+      }, [status?.running])
+
+      const refresh = useCallback(async () => {
+        try {
+          const data = await callJson('status')
+          setStatus(data)
+          setError(null)
+          if (typeof onDataRef.current === 'function') onDataRef.current(data)
+        } catch (failure) {
+          const message = String(failure?.message ?? failure)
+          setError(message === 'host-missing' ? 'host-missing' : message)
+        }
+      }, [])
+
+      useEffect(() => {
+        let stopped = false
+        let timer
+        const tick = async () => {
+          await refresh()
+          if (stopped) return
+          timer = setTimeout(tick, runningRef.current ? 1500 : 4000)
+        }
+        void tick()
+        return () => {
+          stopped = true
+          if (timer !== undefined) clearTimeout(timer)
+        }
+      }, [refresh])
+
+      return { status, error, refresh }
+    }
+
+    /** Shared QR login flow, used by both the settings section and the task panel. */
+    function useMysLogin({ t, refresh, onNotice }) {
+      const [qr, setQr] = useState(null)
+      const [busy, setBusy] = useState(false)
+      const refreshRef = useRef(refresh)
+      refreshRef.current = refresh
+      const noticeRef = useRef(onNotice)
+      noticeRef.current = onNotice
+
+      const startLogin = useCallback(async () => {
+        setBusy(true)
+        try {
+          const data = await callJson('login/start', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: '{}',
+          })
+          setQr({ ticket: data.ticket, src: data.qr, state: 'pending' })
+        } catch (failure) {
+          noticeRef.current?.(fill(t('saveFailed'), { message: String(failure?.message ?? failure) }))
+        } finally {
+          setBusy(false)
+        }
+      }, [t])
+
+      useEffect(() => {
+        if (qr === null) return undefined
+        let stopped = false
+        let finished = false
+        let timer
+        const tick = async () => {
+          try {
+            const body = await requestJson(`login/poll?ticket=${encodeURIComponent(qr.ticket)}`)
+            if (stopped) return
+            if (body.state === 'confirmed') {
+              finished = true
+              setQr(null)
+              noticeRef.current?.(t('qrConfirmed'))
+              void refreshRef.current?.()
+            } else if (body.state === 'expired') {
+              finished = true
+              setQr((current) => (current === null ? null : { ...current, state: 'expired' }))
+            } else if (body.state === 'error') {
+              finished = true
+              setQr((current) => (current === null ? null : { ...current, state: 'error', message: body.error?.message }))
+            } else {
+              setQr((current) => (current === null ? null : { ...current, state: body.state }))
+            }
+          } catch (failure) {
+            if (!stopped) {
+              finished = true
+              setQr((current) => (current === null ? null : { ...current, state: 'error', message: String(failure?.message ?? failure) }))
+            }
+          } finally {
+            if (!stopped && !finished) timer = setTimeout(tick, 2200)
+          }
+        }
+        timer = setTimeout(tick, 900)
+        return () => {
+          stopped = true
+          clearTimeout(timer)
+        }
+      }, [qr?.ticket])
+
+      const cancelLogin = useCallback(async () => {
+        setQr(null)
+        try {
+          await callJson('login/cancel', { method: 'POST', body: '{}' })
+        } catch {
+          /* the local dialog is closed either way */
+        }
+      }, [])
+
+      return { qr, busy, startLogin, cancelLogin }
+    }
+
     function QrDialog({ t, session, onRefresh, onClose, detector }) {
       const state = session.state
       const label = state === 'scanned' ? t('qrScanned')
@@ -616,53 +882,24 @@ window.__ModuleLoader__.load({
         }, '×'))
     }
 
-    function Section({ t }) {
-      const [status, setStatus] = useState(null)
-      const [error, setError] = useState(null)
+    function Section({ t, __status }) {
       const [notice, setNotice] = useState(null)
       const [draft, setDraft] = useState(null)
-      const [qr, setQr] = useState(null)
-      const [busy, setBusy] = useState({ login: false, run: false, verify: false, refresh: false })
+      const [busy, setBusy] = useState({ run: false, verify: false, refresh: false })
       const [verifyInfo, setVerifyInfo] = useState(null)
-      const detector = useDetector(qr?.src)
       const dirtyRef = useRef(false)
       const saveTimerRef = useRef(null)
-      const runningRef = useRef(false)
       const draftRef = useRef(null)
 
-      useEffect(() => {
-        runningRef.current = status?.running === true
-      }, [status?.running])
-
-      const refresh = useCallback(async () => {
-        try {
-          const data = await callJson('status')
-          setStatus(data)
-          setError(null)
-          if (!dirtyRef.current && data.config) {
-            draftRef.current = data.config
-            setDraft(data.config)
-          }
-        } catch (failure) {
-          const message = String(failure?.message ?? failure)
-          setError(message === 'host-missing' ? 'host-missing' : message)
+      // Keep the editable draft in step with the host unless the user is mid-edit.
+      const { status, error, refresh } = useMysStatus((data) => {
+        if (!dirtyRef.current && data.config) {
+          draftRef.current = data.config
+          setDraft(data.config)
         }
-      }, [])
-
-      useEffect(() => {
-        let stopped = false
-        let timer
-        const tick = async () => {
-          await refresh()
-          if (stopped) return
-          timer = setTimeout(tick, runningRef.current ? 1500 : 4000)
-        }
-        void tick()
-        return () => {
-          stopped = true
-          if (timer !== undefined) clearTimeout(timer)
-        }
-      }, [refresh])
+      }, __status)
+      const loginFlow = useMysLogin({ t, refresh, onNotice: setNotice })
+      const detector = useDetector(loginFlow.qr?.src)
 
       useEffect(() => () => {
         if (saveTimerRef.current !== null) clearTimeout(saveTimerRef.current)
@@ -701,70 +938,6 @@ window.__ModuleLoader__.load({
         setDraft(next)
         scheduleSave(next)
       }, [scheduleSave])
-
-      const startLogin = useCallback(async () => {
-        setBusy((current) => ({ ...current, login: true }))
-        try {
-          const data = await callJson('login/start', {
-            method: 'POST',
-            headers: { 'content-type': 'application/json' },
-            body: '{}',
-          })
-          setQr({ ticket: data.ticket, src: data.qr, state: 'pending' })
-        } catch (failure) {
-          setNotice(fill(t('saveFailed'), { message: String(failure?.message ?? failure) }))
-        } finally {
-          setBusy((current) => ({ ...current, login: false }))
-        }
-      }, [t])
-
-      useEffect(() => {
-        if (qr === null) return undefined
-        let stopped = false
-        let finished = false
-        let timer
-        const tick = async () => {
-          try {
-            const body = await requestJson(`login/poll?ticket=${encodeURIComponent(qr.ticket)}`)
-            if (stopped) return
-            if (body.state === 'confirmed') {
-              finished = true
-              setQr(null)
-              setNotice(t('qrConfirmed'))
-              void refresh()
-            } else if (body.state === 'expired') {
-              finished = true
-              setQr((current) => (current === null ? null : { ...current, state: 'expired' }))
-            } else if (body.state === 'error') {
-              finished = true
-              setQr((current) => (current === null ? null : { ...current, state: 'error', message: body.error?.message }))
-            } else {
-              setQr((current) => (current === null ? null : { ...current, state: body.state }))
-            }
-          } catch (failure) {
-            if (!stopped) {
-              finished = true
-              setQr((current) => (current === null ? null : { ...current, state: 'error', message: String(failure?.message ?? failure) }))
-            }
-          } finally {
-            if (!stopped && !finished) timer = setTimeout(tick, 2200)
-          }
-        }
-        timer = setTimeout(tick, 900)
-        return () => {
-          stopped = true
-          clearTimeout(timer)
-        }
-      }, [qr?.ticket])
-
-      const cancelLogin = useCallback(async () => {
-        setQr(null)
-        try {
-          await callJson('login/cancel', { method: 'POST', body: '{}' })
-        } catch {
-          /* the local dialog is closed either way */
-        }
-      }, [])
 
       const logout = useCallback(async () => {
         try {
@@ -820,10 +993,11 @@ window.__ModuleLoader__.load({
       const lastError = status?.lastError ?? null
 
       if (error === 'host-missing') {
-        return h('div', { className: 'mys-section' },
-          h('div', { className: 'mys-head' },
-            h('h2', { className: 'mys-title' }, t('title')),
-            h('p', { className: 'mys-intro' }, t('intro'))),
+        return h('div', { className: 'mys-page' },
+          h('header', { className: 'mys-page-head' },
+            h('div', null,
+              h('h1', { className: 'mys-page-title' }, t('taskPanelTitle')),
+              h('p', { className: 'mys-page-intro' }, t('intro')))),
           h('div', { className: 'mys-banner', 'data-tone': 'error' }, t('hostMissing')))
       }
 
@@ -834,7 +1008,7 @@ window.__ModuleLoader__.load({
             h('div', null, t('bannerExpired')),
             h('div', { className: 'mys-hint' }, String(lastError.message ?? '')),
             h('div', { className: 'mys-banner-actions' },
-              h(Button, { variant: 'primary', onClick: startLogin, disabled: busy.login }, t('relogin'))))
+              h(Button, { variant: 'primary', onClick: loginFlow.startLogin, disabled: loginFlow.busy }, t('relogin'))))
         }
         if (code === 'CAPTCHA') {
           return h('div', { className: 'mys-banner', 'data-tone': 'warn' },
@@ -853,32 +1027,85 @@ window.__ModuleLoader__.load({
       const targetText = plan.targetAt === null || plan.targetAt === undefined ? null : formatTarget(plan.targetAt, status?.timezone ?? 'Asia/Shanghai')
       const reasonKey = plan.reason === 'missed' ? 'reasonMissed' : plan.reason === 'inside' ? 'reasonInside' : plan.reason === 'done-today' ? 'reasonDoneToday' : plan.reason === 'passed' ? 'reasonPassed' : 'reasonWindow'
 
-      return h('div', { className: 'mys-section' },
-        h('div', { className: 'mys-head' },
-          h('h2', { className: 'mys-title' }, t('title')),
-          h('p', { className: 'mys-intro' }, t('intro'))),
+      const enabled = config?.enabled === true
+      const windowsText = (config?.windows ?? []).map((window) => `${window.start}–${window.end}`).join('、')
+      const taskState = enabled !== true
+        ? { label: t('taskStatePaused'), tone: '' }
+        : login.state === 'expired'
+          ? { label: t('taskStateExpired'), tone: 'error' }
+          : login.state === 'anonymous'
+            ? { label: t('taskStateAnonymous'), tone: 'warn' }
+            : { label: t('taskStateActive'), tone: 'ok' }
+
+      return h('div', { className: 'mys-page' },
+        h('header', { className: 'mys-page-head' },
+          h('div', null,
+            h('h1', { className: 'mys-page-title' }, t('taskPanelTitle')),
+            h('p', { className: 'mys-page-intro' }, t('intro'))),
+          h('div', { className: 'mys-actions' },
+            h(Button, {
+              variant: 'primary',
+              disabled: busy.run || status?.running === true || login.state === 'anonymous',
+              onClick: runNow,
+            }, status?.running === true || busy.run ? t('running') : t('runNow')),
+            h(Button, {
+              disabled: config === null,
+              onClick: () => patchDraft((next) => { next.enabled = !enabled; return next }),
+            }, enabled ? t('taskPause') : t('taskResume')))),
 
         error !== null ? h('div', { className: 'mys-banner', 'data-tone': 'error' }, fill(t('loadFailed'), { message: error })) : null,
         banner,
         notice !== null ? h('div', { className: 'mys-banner', 'data-tone': 'ok' }, notice) : null,
 
+        h('article', { className: 'mys-task-card' },
+          h('div', { className: 'mys-task-main' },
+            h('div', { className: 'mys-task-title' },
+              h(StatusDot, { state: login.state }),
+              h('span', null, t('taskName')),
+              h('span', { className: 'mys-tag', 'data-tone': taskState.tone }, taskState.label)),
+            h('div', { className: 'mys-task-meta' },
+              `${t('taskFrequency')}：${windowsText === '' ? '—' : `${windowsText}${t('taskRandom')}`}`),
+            h('div', { className: 'mys-task-meta' },
+              `${t('taskNextRun')}：${targetText === null ? t('noPlan') : `${targetText}（${t(reasonKey)}）`}`),
+            h('div', { className: 'mys-task-meta' },
+              `${t('taskLastRun')}：${lastResult === null ? '—' : `${formatTime(lastResult.at)} · ${lastResult.summary ?? ''}`}`))),
+
         h(Card, { title: t('account'), desc: t('accountDesc') },
           h('div', { className: 'mys-card-head' },
             h('div', { className: 'mys-account' },
-              h(StatusDot, { state: login.state }),
-              h('span', null, login.state === 'active' ? t('stateActive') : login.state === 'expired' ? t('stateExpired') : t('stateAnonymous')),
-              login.accountName ? h('span', { className: 'mys-meta' }, login.accountName) : null,
-              login.uid ? h('span', { className: 'mys-meta' }, `${t('uid')} ${login.uid}`) : null),
+              login.avatar
+                ? h('img', {
+                    className: 'mys-avatar',
+                    src: login.avatar,
+                    alt: '',
+                    onError: (event) => {
+                      event.target.style.display = 'none'
+                    },
+                  })
+                : h('span', { className: 'mys-avatar', 'aria-hidden': true }, (login.accountName ?? '米').slice(0, 1)),
+              h('div', { className: 'mys-account-text' },
+                h('div', { className: 'mys-account-line' },
+                  h('span', { className: 'mys-account-name' }, login.accountName ?? t('stateAnonymous')),
+                  h('span', {
+                    className: 'mys-tag',
+                    'data-tone': login.state === 'active' ? 'ok' : login.state === 'expired' ? 'error' : '',
+                  }, login.state === 'active' ? t('stateActive') : login.state === 'expired' ? t('stateExpired') : t('stateAnonymous'))),
+                h('div', { className: 'mys-meta' }, login.uid ? `${t('uid')} ${login.uid}` : t('taskStateAnonymous')))),
             h('div', { className: 'mys-actions' },
-              login.state === 'active'
+              login.state === 'active' && login.hasStoken !== false
                 ? h(Button, { onClick: refreshCredentials, disabled: busy.refresh }, busy.refresh ? t('refreshing') : t('refresh'))
-                : h(Button, { variant: 'primary', onClick: startLogin, disabled: busy.login }, busy.login ? t('qrChecking') : t('login')),
+                : login.state === 'active'
+                  ? h(Button, { variant: 'primary', onClick: loginFlow.startLogin, disabled: loginFlow.busy }, loginFlow.busy ? t('qrChecking') : t('upgradeLogin'))
+                  : h(Button, { variant: 'primary', onClick: loginFlow.startLogin, disabled: loginFlow.busy }, loginFlow.busy ? t('qrChecking') : t('login')),
               login.state === 'active'
                 ? h(Button, { variant: 'danger', onClick: logout }, t('logout'))
                 : null)),
           login.state !== 'anonymous' ? h('div', { className: 'mys-meta' },
             [login.loginAt ? `${t('loginAt')} ${formatTime(login.loginAt)}` : null,
               `${t('lastRefresh')} ${login.lastRefreshAt ? formatTime(login.lastRefreshAt) : t('never')}`].filter(Boolean).join(' · ')) : null,
+          login.state === 'active' && login.hasStoken === false
+            ? h('div', { className: 'mys-banner', 'data-tone': 'warn' }, `${t('noStoken')}${t('noStokenHint')}`)
+            : null,
           h('div', { className: 'mys-actions' },
             h(Button, { onClick: verify, disabled: busy.verify }, busy.verify ? t('verifying') : t('verify'))),
           verifyInfo === null ? null : h('div', {
@@ -915,7 +1142,18 @@ window.__ModuleLoader__.load({
                 type: 'time',
                 value: window.start,
                 'aria-label': t('windows'),
-                onChange: (event) => patchDraft((next) => { next.windows[index].start = event.target.value; return next }),
+                onChange: (event) => patchDraft((next) => {
+                  const value = event.target.value
+                  const startMin = clockToMinutes(value)
+                  const endMin = clockToMinutes(next.windows[index].end)
+                  next.windows[index].start = value
+                  // Keep the window valid while the user is still typing: an end
+                  // at or before the start snaps to a one-minute window.
+                  if (startMin !== null && (endMin === null || endMin <= startMin)) {
+                    next.windows[index].end = minutesToClock(Math.min(1439, startMin + 1))
+                  }
+                  return next
+                }),
               }),
               h('span', { className: 'mys-meta' }, '—'),
               h('input', {
@@ -923,11 +1161,20 @@ window.__ModuleLoader__.load({
                 type: 'time',
                 value: window.end,
                 'aria-label': t('windows'),
-                onChange: (event) => patchDraft((next) => { next.windows[index].end = event.target.value; return next }),
+                onChange: (event) => patchDraft((next) => {
+                  const value = event.target.value
+                  const startMin = clockToMinutes(next.windows[index].start)
+                  const endMin = clockToMinutes(value)
+                  next.windows[index].end = endMin !== null && startMin !== null && endMin <= startMin
+                    ? minutesToClock(startMin + 1)
+                    : value
+                  return next
+                }),
               }),
               h(Button, {
                 variant: 'danger',
                 size: 'sm',
+                disabled: (config?.windows ?? []).length <= 1,
                 onClick: () => patchDraft((next) => {
                   if (next.windows.length > 1) next.windows.splice(index, 1)
                   return next
@@ -937,10 +1184,18 @@ window.__ModuleLoader__.load({
           h('div', { className: 'mys-actions' },
             h(Button, {
               size: 'sm',
+              disabled: (config?.windows ?? []).length >= 4,
               onClick: () => patchDraft((next) => {
                 if (next.windows.length >= 4) return next
                 const last = next.windows[next.windows.length - 1] ?? { start: '18:00', end: '18:30' }
-                next.windows.push({ start: last.start, end: last.end })
+                const lastStart = clockToMinutes(last.start) ?? 1080
+                const lastEnd = clockToMinutes(last.end) ?? lastStart + 30
+                const span = Math.min(120, Math.max(1, lastEnd - lastStart))
+                // Offset the new window so it is immediately usable; duplicate
+                // times are allowed, this is only a convenience.
+                let start = lastStart + 60
+                if (start + span > 1439) start = 1439 - span
+                next.windows.push({ start: minutesToClock(start), end: minutesToClock(start + span) })
                 return next
               }),
             }, t('addWindow'))),
@@ -979,30 +1234,58 @@ window.__ModuleLoader__.load({
                       ? `${game.role.nickname ?? ''} ${game.role.uid ?? ''} ${game.role.regionName ?? ''}`.trim()
                       : t('noRole'))))))),
 
-        h(Card, { title: t('actions'), desc: t('actionsDesc') },
-          h('div', { className: 'mys-actions' },
-            h(Button, {
-              variant: 'primary',
-              disabled: busy.run || status?.running === true || login.state === 'anonymous',
-              onClick: runNow,
-            }, status?.running === true || busy.run ? t('running') : t('runNow'))),
-          h('div', { className: 'mys-card-head-text' },
-            h('div', { className: 'mys-card-title' }, t('result')),
-            h('div', { className: 'mys-card-desc' }, t('resultDesc'))),
+        h('section', { className: 'mys-page-section' },
+          h('h2', null, t('taskRunHistory')),
           lastResult === null
             ? h('div', { className: 'mys-empty' }, t('noResult'))
-            : h('table', { className: 'mys-table' },
-                h('thead', null, h('tr', null,
-                  h('th', null, t('colTime')),
-                  h('th', null, t('colGame')),
-                  h('th', null, t('colResult')),
-                  h('th', null, t('colDetail')))),
-                h('tbody', null, (lastResult.results ?? []).map((item, index) => h('tr', { key: index },
-                  h('td', null, formatTime(lastResult.at)),
-                  h('td', null, item.label ?? item.game),
-                  h('td', null, h('span', { className: 'mys-tag', 'data-tone': OUTCOME_TONE[item.outcome] ?? '' },
-                    t(OUTCOME_KEY[item.outcome] ?? 'outcomeError'))),
-                  h('td', null, item.message ?? '')))))),
+            : (() => {
+                const results = lastResult.results ?? []
+                const roled = results.filter((item) => item.outcome !== 'no-role')
+                const done = roled.filter((item) => item.outcome === 'signed' || item.outcome === 'already').length
+                const total = roled.length
+                const allDone = total > 0 && done === total
+                const at = new Date(lastResult.at)
+                const timeText = Number.isNaN(at.getTime())
+                  ? '—'
+                  : `${String(at.getHours()).padStart(2, '0')}:${String(at.getMinutes()).padStart(2, '0')}`
+                return h('div', { className: 'mys-run' },
+                  h('div', { className: 'mys-summary' },
+                    h('div', { className: 'mys-summary-mark', 'aria-hidden': true }, '✓'),
+                    h('div', { className: 'mys-summary-main' },
+                      h('div', { className: 'mys-summary-title' }, t('runTitle')),
+                      h('div', { className: 'mys-summary-sub' }, `${t('runSigned')} `, h('b', null, String(done)), ` ${t('runAccounts')}`),
+                      h('div', { className: 'mys-summary-sub' },
+                        `${t('runAuto')}：${lastResult.reason === 'schedule' ? t('yes') : t('no')} | ${t('runAt')}：${timeText}`)),
+                    h('div', { className: 'mys-summary-score' },
+                      h('div', { className: 'mys-summary-count' }, `${done}/${total}`),
+                      h('div', { className: 'mys-summary-badge', 'data-done': allDone ? 'true' : 'false' },
+                        allDone ? t('runDone') : t('runPartial')))),
+                  results.map((item, index) => h('article', {
+                    className: 'mys-game',
+                    key: `${item.game}-${index}`,
+                    style: { '--mys-accent': GAME_ACCENT[item.game] ?? '#6b7280' },
+                  },
+                  h('div', { className: 'mys-game-head' },
+                    h('span', { className: 'mys-game-bar', 'aria-hidden': true }),
+                    h('span', { className: 'mys-game-name' }, item.label ?? item.game),
+                    h('span', { className: 'mys-game-count' },
+                      `${item.uid === undefined || item.uid === '' ? 0 : 1}${t('runAccountUnit')}`)),
+                  h('table', { className: 'mys-game-table' },
+                    h('thead', null, h('tr', null,
+                      h('th', null, 'UID'),
+                      h('th', null, t('colStatus')),
+                      h('th', null, t('colReward')),
+                      h('th', null, t('colTotal')))),
+                    h('tbody', null, h('tr', null,
+                      h('td', null, item.uid ?? '—'),
+                      h('td', null, h('span', {
+                        className: 'mys-status',
+                        'data-outcome': item.outcome,
+                      }, `${item.outcome === 'signed' || item.outcome === 'already' ? '✓ ' : ''}${t(OUTCOME_KEY[item.outcome] ?? 'outcomeError')}`)),
+                      h('td', null, awardsText(item.awards)),
+                      h('td', null, typeof item.totalDays === 'number' ? `${item.totalDays}/25` : '—')))))),
+                  h('div', { className: 'mys-run-foot' }, allDone ? t('runFooterDone') : t('runFooterPartial')))
+              })()),
 
         h('details', { className: 'mys-details' },
           h('summary', null, t('advanced')),
@@ -1086,13 +1369,27 @@ window.__ModuleLoader__.load({
         h(Card, { title: t('riskTitle') },
           h('div', { className: 'mys-hint' }, t('riskList'))),
 
-        qr === null ? null : h(QrDialog, {
+        loginFlow.qr === null ? null : h(QrDialog, {
           t,
-          session: qr,
+          session: loginFlow.qr,
           detector,
-          onRefresh: startLogin,
-          onClose: cancelLogin,
+          onRefresh: loginFlow.startLogin,
+          onClose: loginFlow.cancelLogin,
         }))
+    }
+
+    /** Sidebar rail icon for the task panel. */
+    function PanelIcon({ size }) {
+      return h('svg', {
+        width: size,
+        height: size,
+        viewBox: '0 0 24 24',
+        fill: 'none',
+        stroke: 'currentColor',
+        'aria-hidden': true,
+      },
+      h('circle', { cx: 12, cy: 12, r: 8.25, strokeWidth: 1.5 }),
+      h('path', { d: 'M8.2 12.2l2.5 2.5 5.1-5.2', strokeWidth: 1.7, strokeLinecap: 'round', strokeLinejoin: 'round' }))
     }
 
     return {
@@ -1110,19 +1407,27 @@ window.__ModuleLoader__.load({
           return () => tag.remove()
         }, 'mys-checkin: settings styles')
 
-        ctx.slots.inject('settings.section', () => ctx.slots.register({
-          name: 'settings.section',
-          id: 'mys-checkin',
-          order: 60,
-          label: () => t('nav'),
-          locale: NS,
-        }, Section))
-
         ctx.slots.inject('shell.overlay', () => ctx.slots.register({
           name: 'shell.overlay',
           id: 'mys-checkin-status',
           order: 20,
         }, (props) => h(OverlayBadge, { ...props, t })))
+
+        // Everything lives in the sidebar task panel; DSH Settings keeps no
+        // section of its own for this plugin.
+        ctx.slots.inject('sidebar.panellist', () => ctx.slots.register({
+          name: 'sidebar.panellist',
+          id: 'mys-checkin',
+          order: 11,
+          locale: NS,
+          label: () => t('panel'),
+        }, PanelIcon))
+
+        ctx.slots.inject('main', () => ctx.slots.register({
+          name: 'main',
+          key: 'mys-checkin',
+          locale: NS,
+        }, Section))
       },
     }
   },
