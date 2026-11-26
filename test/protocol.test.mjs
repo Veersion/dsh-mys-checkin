@@ -135,3 +135,61 @@ test('enabledGames respects the toggles', () => {
   const ids = enabledGames(defaultConfig()).map((game) => game.id)
   assert.deepEqual(ids, ['genshin', 'starrail', 'zzz', 'honkai3'])
 })
+
+/** Run one refresh against a scripted pair of mint answers. */
+async function refreshWith(answers) {
+  const { refreshCredentials } = await import('../lib/mys.js')
+  const seen = []
+  const original = globalThis.fetch
+  globalThis.fetch = async (input) => {
+    const url = String(input)
+    seen.push(url)
+    const key = url.includes('/getCookieAccountInfoBySToken') ? 'cookie_token' : 'ltoken'
+    return new Response(JSON.stringify(answers[key]), { status: 200, headers: { 'content-type': 'application/json' } })
+  }
+  try {
+    const result = await refreshCredentials({
+      config: defaultConfig(),
+      deviceId: 'device-1',
+      cookies: { stoken_v2: 'v2_s', mid: 'mid_1', stuid: '100200300', ltoken: 'v1_l' },
+    })
+    return { result, seen }
+  } finally {
+    globalThis.fetch = original
+  }
+}
+
+test('refreshCredentials reports a retired mint route instead of a dead stoken', async () => {
+  const { result, seen } = await refreshWith({
+    cookie_token: { retcode: -464, message: '请使用最新版本产品/链接以获得更佳体验。', data: null },
+    ltoken: { retcode: 1002, message: '系统请求失败，请返回重试', data: null },
+  })
+  assert.equal(result.ok, false)
+  assert.equal(result.reason, 'unsupported')
+  assert.match(result.message, /停用/)
+  assert.match(result.message, /-464/)
+  // Both routes are tried, and the stored cookies come back untouched.
+  assert.equal(seen.length, 2)
+  assert.equal(result.cookies.stoken_v2, 'v2_s')
+  assert.equal(result.cookies.ltoken, 'v1_l')
+})
+
+test('refreshCredentials still calls a rejected token invalid', async () => {
+  const { result } = await refreshWith({
+    cookie_token: { retcode: -100, message: '登录状态失效，请重新登录', data: null },
+    ltoken: { retcode: -100, message: '登录状态失效，请重新登录', data: null },
+  })
+  assert.equal(result.reason, 'invalid')
+})
+
+test('refreshCredentials keeps the V1 id aliases when the ltoken comes back V1', async () => {
+  const { result } = await refreshWith({
+    cookie_token: { retcode: 0, message: 'ok', data: { cookie_token: 'v1_cookie' } },
+    ltoken: { retcode: 0, message: 'ok', data: { ltoken: 'v1_ltoken' } },
+  })
+  assert.equal(result.ok, true)
+  assert.equal(result.cookies.ltoken, 'v1_ltoken')
+  assert.equal(result.cookies.cookie_token, 'v1_cookie')
+  assert.equal(result.cookies.ltuid, '100200300')
+  assert.equal(result.cookies.account_id, '100200300')
+})

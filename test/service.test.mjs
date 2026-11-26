@@ -72,7 +72,8 @@ function jsonResponse(body, extraHeaders = []) {
  *
  * `stokenOnly` mimics the App channel confirming with an inline stoken and no
  * cookies; `webOnly` mimics the web channel (cookies, no stoken); `appCreateFails`
- * forces the web fallback.
+ * forces the web fallback; `exchangeRetired` answers the two stoken-mint routes
+ * the way the live passport does today (-464 / 1002).
  */
 function installFakeNetwork(options = {}) {
   const calls = []
@@ -85,13 +86,16 @@ function installFakeNetwork(options = {}) {
       if (options.appCreateFails === true && url.includes('/app/createQRLogin')) {
         return jsonResponse({ retcode: -3001, message: 'app channel unavailable', data: null })
       }
-      return jsonResponse({ retcode: 0, message: 'ok', data: { url: 'https://user.mihoyo.com/qr_login/?ticket=tk1', ticket: 'tk1' } })
+      // A distinct ticket per channel lets the poll answer per flow.
+      const ticket = url.includes('/web/createQRLogin') ? 'tk2' : 'tk1'
+      return jsonResponse({ retcode: 0, message: 'ok', data: { url: `https://user.mihoyo.com/qr_login/?ticket=${ticket}`, ticket } })
     }
     if (url.includes('/queryQRLoginStatus')) {
+      const ticket = new URL(url).searchParams.get('ticket') ?? ''
       polls += 1
       if (polls === 1) return jsonResponse({ retcode: 0, message: 'ok', data: { status: 'Created', user_info: null } })
       if (polls === 2) return jsonResponse({ retcode: 0, message: 'ok', data: { status: 'Scanned', user_info: null } })
-      if (options.stokenOnly === true) {
+      if (options.stokenOnly === true && ticket === 'tk1') {
         return jsonResponse({
           retcode: 0,
           message: 'ok',
@@ -108,9 +112,15 @@ function installFakeNetwork(options = {}) {
       )
     }
     if (url.includes('/getCookieAccountInfoBySToken')) {
+      if (options.exchangeRetired === true) {
+        return jsonResponse({ retcode: -464, message: '请使用最新版本产品/链接以获得更佳体验，或前往user.mihoyo.com完成操作。', data: null })
+      }
       return jsonResponse({ retcode: 0, message: 'ok', data: { uid: '100200300', cookie_token: options.v1Tokens === true ? 'v1_cookie' : 'v2_cookie' } })
     }
     if (url.includes('/getLTokenBySToken')) {
+      if (options.exchangeRetired === true) {
+        return jsonResponse({ retcode: 1002, message: '系统请求失败，请返回重试', data: null })
+      }
       return jsonResponse({ retcode: 0, message: 'ok', data: { ltoken: options.v1Tokens === true ? 'v1_ltoken' : 'v2_ltoken' } })
     }
     if (url.includes('/binding/api/getUserGameRolesByCookie')) {
@@ -255,8 +265,94 @@ test('App-channel login pairs a V1 ltoken with ltuid/account_id', async (t) => {
   assert.match(binding.headers.Cookie, /ltoken=v1_ltoken/)
 })
 
-test('login falls back to the web channel when the App channel cannot create a ticket', async (t) => {
+test('a retired stoken exchange hands the user a web QR instead of failing the login', async (t) => {
   freshHome()
+  const network = installFakeNetwork({ stokenOnly: true, webOnly: true, exchangeRetired: true })
+  t.after(() => network.restore())
+
+  const ctx = createCtx()
+  const service = new MysService(ctx, {})
+  t.after(() => service.dispose())
+
+  const started = await service.routeLoginStart(new Request('http://x/api/mys/login/start', { method: 'POST', body: '{}' }))
+  assert.equal(started.ticket, 'tk1')
+  const poll = (ticket) => new Request(`http://x/api/mys/login/poll?ticket=${ticket}`)
+  await service.routeLoginPoll(poll('tk1')) // Created
+  await service.routeLoginPoll(poll('tk1')) // Scanned
+
+  // The App channel confirmed with a stoken the passport will not mint into
+  // cookies: the poll must answer with the new web ticket, not an error.
+  const switched = await service.routeLoginPoll(poll('tk1'))
+  assert.equal(switched.ok, true)
+  assert.equal(switched.state, 'rescan')
+  assert.equal(switched.ticket, 'tk2')
+  assert.match(switched.qr, /^data:image\/svg\+xml;base64,/)
+  assert.match(switched.message, /网页/)
+  assert.equal(network.calls.some((call) => call.url.includes('/getLTokenBySToken')), true)
+
+  const confirmed = await service.routeLoginPoll(poll('tk2'))
+  assert.equal(confirmed.state, 'confirmed')
+
+  const cookies = service.state.auth.cookies
+  // Signing cookies come from the web channel …
+  assert.equal(cookies.ltoken_v2, 'v2_ltoken')
+  assert.equal(cookies.ltuid_v2, '100200300')
+  // … and the stoken from the first scan is kept for a future renewal.
+  assert.equal(cookies.stoken_v2, 'v2_stoken')
+  assert.equal(cookies.ltmid_v2, 'mid_9000')
+
+  // The failure is remembered, so the next login is a single web scan.
+  assert.equal(service.state.runtime.exchangeClosed, true)
+  assert.equal(service.preferWebFlow, true)
+  const after = await service.routeStatus()
+  assert.equal(after.login.state, 'active')
+  assert.equal(after.login.hasStoken, true)
+})
+
+test('a remembered retired exchange makes the next login start on the web channel', async (t) => {
+  const home = freshHome()
+  fs.mkdirSync(path.join(home, 'mys-checkin'), { recursive: true })
+  fs.writeFileSync(path.join(home, 'mys-checkin', 'state.json'), JSON.stringify({
+    version: 1,
+    auth: null,
+    runtime: { exchangeClosed: true, log: [] },
+  }))
+
+  const network = installFakeNetwork()
+  t.after(() => network.restore())
+
+  const ctx = createCtx()
+  const service = new MysService(ctx, {})
+  t.after(() => service.dispose())
+
+  const started = await service.routeLoginStart(new Request('http://x/api/mys/login/start', { method: 'POST', body: '{}' }))
+  assert.equal(started.ticket, 'tk2')
+  assert.equal(network.calls.some((call) => call.url.includes('/app/createQRLogin')), false)
+})
+
+test('a retired exchange does not delete a session that can still sign in', async (t) => {
+  freshHome()
+  const network = installFakeNetwork({ exchangeRetired: true })
+  t.after(() => network.restore())
+
+  const ctx = createCtx()
+  const service = new MysService(ctx, {})
+  t.after(() => service.dispose())
+
+  await completeLogin(service)
+  const result = await service.routeRefresh(new Request('http://x/api/mys/refresh', { method: 'POST', body: '{}' }))
+  assert.equal(result.ok, false)
+  assert.equal(result.error.code, 'refresh-unsupported')
+  assert.match(result.error.message, /未受影响/)
+
+  // The credential and the account state survive: only the mint route is gone.
+  assert.notEqual(service.state.auth, null)
+  assert.equal(service.state.runtime.lastError, null)
+  assert.equal(service.state.runtime.exchangeClosed, true)
+  assert.equal((await service.routeStatus()).login.state, 'active')
+})
+
+test('login falls back to the web channel when the App channel cannot create a ticket', async (t) => {  freshHome()
   const network = installFakeNetwork({ appCreateFails: true, webOnly: true })
   t.after(() => network.restore())
 

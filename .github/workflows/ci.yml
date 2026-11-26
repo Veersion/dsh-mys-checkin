@@ -26,6 +26,9 @@ jobs:
           node-version: ${{ matrix.node }}
 
       # No dependencies: the plugin uses Node built-ins only.
+      - name: Packaging guard (no BOM, manifests parse)
+        run: node test/package.test.mjs
+
       - name: Protocol / signature
         run: node test/protocol.test.mjs
 

@@ -2,6 +2,24 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [0.2.2] - 2026-11-26
+
+修复「App 扫码已确认并取得 SToken，但换取 ltoken 失败；请重试」——登录再也无法完成的问题；同时修掉 `package.json` 带 UTF-8 BOM 导致宿主报「包不可用」的问题。
+
+### 修复
+
+- `package.json` 曾被写成带 UTF-8 BOM 的文件，宿主解析即报 `Unexpected token '﻿', "﻿{"name"... is not valid JSON`，插件显示「包不可用」。现已改为无 BOM 的 UTF-8，并新增 `test/package.test.mjs`（含 CI 步骤）按原始字节检查 `package.json` / `cordis.patch.yml` 无 BOM、`package.json` 可直接解析，避免编辑器或脚本再次写入 BOM。
+- **换票接口已被米游社停用**：`getCookieAccountInfoBySToken` 现在对 App 通道的 SToken 返回 `-464`（「请使用最新版本产品/链接……」），`getLTokenBySToken` 返回 `1002`（「系统请求失败」）。两者都在会话校验之后才拒绝，因此拿到 SToken 并不代表能换出 `ltoken`。插件现在把这些返回码识别为「接口停用」而不是「SToken 失效」（实测同一 SToken 调 `getActionTicketBySToken` 仍返回 0，说明凭据本身是有效的）。
+- **App 通道换不出凭据时自动换网页二维码再扫一次**：拿到 SToken 但换不到签到凭据时不再直接报错，而是立刻在同一弹窗里换成网页通道的二维码（网页通道直接下发 `ltoken_v2` / `cookie_token_v2`），提示「请再扫一次」。第一次扫码得到的 SToken 会保留并与网页凭据合并保存。
+- 记住结论：一旦换票接口被判定停用，后续登录直接走网页通道，只需扫一次；接口恢复时会自动改回 App 通道并在日志里说明。
+- 续期失败不再删掉还能用的登录：`-464` / `1002` / `-5300` 只在日志与手动「续期凭据」里提示「米游社已停用换票接口，当前凭据未受影响」，不再标记 `LOGIN_EXPIRED`、不再清空会话。
+- 换票失败的日志现在带上每个接口的 `retcode` 与 `message`（例如 `cookie_token:-464，ltoken:1002`），下次协议变动能直接从日志定位。
+- 扫码确认响应里的内联凭据解析更宽容：除 `data.tokens` 外，也接受 `data.token`（单条）以及 `data.cookies` / `data.cookie`（字符串或数组形式的 Cookie 列表），不再丢弃服务端直接下发的 Cookie。
+
+### 说明
+
+- 米游社目前只给网页通道下发能签到的 Cookie，且不再用 SToken 换这些 Cookie，所以「凭据到期后自动续期」实际上不可用：`ltoken` 大约 30 天后失效，到期只能重新扫码。面板与日志会明确写出这一点。
+
 ## [0.2.1] - 2026-10-25
 
 修复 App 通道登录后所有签到请求都返回 `-100` 的问题，并新增「删除登录」。

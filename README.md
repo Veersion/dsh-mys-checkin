@@ -47,7 +47,8 @@ git clone https://github.com/Veersion/dsh-mys-checkin.git
 - 二维码只在本机生成，不上传到任何第三方；
 - 若浏览器支持 `BarcodeDetector`，对话框会顺带做一次「二维码自检」，识别失败会提示刷新；
 - 登录成功后状态变为「已登录」，并显示昵称与 UID；
-- 登录优先走 **App 扫码通道**：服务端会在二维码里请求 SToken，确认后插件用 SToken 换取 `ltoken` 与 `cookie_token`，这样登录过期时才能自动续期。只有 App 通道创建二维码失败时，才退回网页通道；网页凭据可以签到，但**不含 SToken，无法自动续期**，面板会明确提示并提供重新扫码入口。
+- 登录优先走 **App 扫码通道**：服务端会在二维码里请求 SToken。米游社自 2026-11 起**不再用这个 SToken 换签到凭据**（`getCookieAccountInfoBySToken` 返回 `-464`、`getLTokenBySToken` 返回 `1002`），所以插件拿到 SToken 后会立即换成**网页通道的二维码**，请再扫一次：网页通道会直接下发 `ltoken_v2` / `cookie_token_v2`。两次扫码得到的 SToken 与网页凭据会合并保存，之后登录只要扫一次（直接走网页通道）。
+- 若 App 通道创建二维码就失败，也同样退回网页通道；网页凭据可以签到，但**不含可换票的 SToken**，面板会明确提示并提供重新扫码入口。
 - 换到的 `ltoken` 是 V1 令牌，会和 `ltuid` / `account_id` 配对；插件会自动补齐这些 ID Cookie，避免出现「能查角色、签到却报 -100」。
 - 0.2.1 会自动修复 0.2.0 存下的登录凭据，不需要重新扫码；更早的网页凭据仍建议重新扫码。
 - 账号卡上的「删除登录」需要点击两次确认，会清空本机保存的凭据、错误提示与角色缓存。
@@ -94,8 +95,8 @@ git clone https://github.com/Veersion/dsh-mys-checkin.git
 
 | 环节 | 接口 |
 | --- | --- |
-| 扫码创建/轮询 | 优先 `POST passport-api.mihoyo.com/account/ma-cn-passport/app/createQRLogin` 与 `/app/queryQRLoginStatus`（`token_types=1`，返回 SToken）；失败时退回 `passport-api.miyoushe.com/.../web/...` |
-| 凭据续期 | `GET passport-api.mihoyo.com/account/auth/api/getCookieAccountInfoBySToken`、`getLTokenBySToken`（登录阶段也会用 SToken 补齐 ltoken/cookie_token） |
+| 扫码创建/轮询 | 优先 `POST passport-api.mihoyo.com/account/ma-cn-passport/app/createQRLogin` 与 `/app/queryQRLoginStatus`（`token_types=1`，只返回 SToken）；换不出签到凭据或创建失败时改用 `passport-api.miyoushe.com/.../web/...`（`token_types=4`，直接下发 `ltoken_v2` / `cookie_token_v2`） |
+| 凭据续期 | `GET passport-api.mihoyo.com/account/auth/api/getCookieAccountInfoBySToken`、`getLTokenBySToken`（登录阶段也会用 SToken 补齐 ltoken/cookie_token）。**这两个接口目前对 App 通道的 SToken 返回 `-464` / `1002`，实测 `getActionTicketBySToken` 仍返回 0，说明是接口停用而非 SToken 失效**；插件据此判定「无法自动续期」而不删除登录 |
 | 角色列表 | `GET api-takumi.mihoyo.com/binding/api/getUserGameRolesByCookie?game_biz=…` |
 | 今日状态 | `GET …/event/luna/{game}/info?act_id&region&uid` → `is_sign`、`total_sign_day`、`first_bind`（用于「累计签到」并在已签到时跳过签到请求） |
 | 账号昵称 | `GET bbs-api.miyoushe.com/user/api/getUserFullInfo?uid=<ltuid>`（DS2 签名；失败时回退为游戏内昵称） |
@@ -128,18 +129,21 @@ git clone https://github.com/Veersion/dsh-mys-checkin.git
 无需安装依赖：
 
 ```powershell
+node test/package.test.mjs
 node test/protocol.test.mjs
 node test/schedule.test.mjs
 node test/qr.test.mjs
 node test/service.test.mjs
 ```
 
+`package.test.mjs` 检查 `package.json` / `cordis.patch.yml` 没有 UTF-8 BOM 且 `package.json` 能按磁盘字节直接解析——带 BOM 时宿主会报「包不可用…Unexpected token '﻿'」，整个插件加载不上。
+
 `qr.test.mjs` 内置一个独立的解码器：读回格式信息、反掩码、反交织、校验每个 Reed–Solomon 块的 syndrome 全为零，并核对数据模块数量与版本容量一致。
 
 ## 已知限制
 
 - **无法自动通过验证码**：`1034` 是全域人机验证，只能去米游社 App「我的 → 我的角色」处理。
-- **网页凭据无法续期**：只有 App 扫码通道下发 SToken；网页通道的凭据到期后必须重新扫码（面板会提示）。
+- **续期实际上不可用**：米游社已停用「SToken 换签到凭据」的两个接口（`-464` / `1002`），`ltoken` 约 30 天后失效，到期只能重新扫码（通常一次，第一次升级后可能两次）；「续期凭据」按钮会如实报告接口停用，不会破坏现有登录。
 - **Cookie 明文落盘**：这是本地自动签到的必要代价；如需更强保护，可把 `~/.dsh/mys-checkin` 放在加密卷上。
 - **只支持国服**（`*_cn` 的 `game_biz` 与 luna 接口）。
 - **一次运行约 1 分钟**：为了避免特征化请求，游戏之间有随机间隔。

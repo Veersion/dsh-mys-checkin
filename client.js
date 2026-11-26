@@ -151,13 +151,13 @@ window.__ModuleLoader__.load({
       title: '米游社签到',
       intro: '每天在你设定的时间窗口内随机挑一个时刻，为已绑定的米哈游游戏自动签到。登录凭据只保存在本机。',
       account: '账号',
-      accountDesc: '使用米游社 App 扫码登录；App 通道会同时获取可自动续期的 SToken。',
+      accountDesc: '使用米游社 App 扫码登录；App 通道只下发 SToken，若米游社不再用 SToken 换签到凭据，会自动改用网页二维码再扫一次。',
       login: '扫码登录',
       relogin: '重新扫码',
       refresh: '续期凭据',
       refreshing: '续期中…',
       noStoken: '当前凭据不含 SToken，无法自动续期。',
-      noStokenHint: '重新扫码会走 App 通道，获取可自动续期的 SToken。',
+      noStokenHint: '重新扫码会走 App 通道，获取 SToken（米游社已限制其换票能力）。',
       upgradeLogin: '重新扫码获取 SToken',
       deleteLogin: '删除登录',
       deleteConfirm: '再次点击确认删除',
@@ -177,6 +177,7 @@ window.__ModuleLoader__.load({
       qrConfirmed: '登录成功，正在校验…',
       qrExpired: '二维码已过期',
       qrRefresh: '刷新二维码',
+      qrRescan: '已切换到网页二维码，请再扫一次',
       qrCancel: '取消',
       qrChecking: '正在生成二维码…',
       auto: '自动签到',
@@ -304,13 +305,13 @@ window.__ModuleLoader__.load({
       title: 'miHoYo check-in',
       intro: 'Signs in to your bound miHoYo games once a day at a random moment inside your windows. Credentials stay on this machine.',
       account: 'Account',
-      accountDesc: 'Scan the QR code with the miHoYo app; the app channel also fetches a renewable SToken.',
+      accountDesc: 'Scan the QR code with the miHoYo app. The app channel only issues an SToken, so when miHoYo refuses to trade it for signing cookies a web QR code appears for one more scan.',
       login: 'Scan to sign in',
       relogin: 'Scan again',
       refresh: 'Refresh credentials',
       refreshing: 'Refreshing…',
       noStoken: 'This credential has no SToken, so it cannot be renewed automatically.',
-      noStokenHint: 'Scan again to use the app channel and obtain one.',
+      noStokenHint: 'Scanning again uses the app channel and obtains an SToken (miHoYo has limited what it can be traded for).',
       upgradeLogin: 'Scan again for SToken',
       deleteLogin: 'Delete login',
       deleteConfirm: 'Click again to delete',
@@ -330,6 +331,7 @@ window.__ModuleLoader__.load({
       qrConfirmed: 'Signed in, verifying…',
       qrExpired: 'The QR code expired',
       qrRefresh: 'New QR code',
+      qrRescan: 'Switched to the web QR code — scan it once more',
       qrCancel: 'Cancel',
       qrChecking: 'Generating QR code…',
       auto: 'Automatic check-in',
@@ -765,6 +767,13 @@ window.__ModuleLoader__.load({
             if (body.state === 'expired') {
               finished = true
               setQr((current) => (current === null ? null : { ...current, state: 'expired' }))
+            } else if (body.state === 'rescan' && typeof body.ticket === 'string' && typeof body.qr === 'string') {
+              // The App channel could not turn its SToken into signing cookies,
+              // so the server swapped in a web-channel ticket: replace the code
+              // in place and let the effect restart polling on the new ticket.
+              finished = true
+              noticeRef.current?.(String(body.message ?? t('qrRescan')))
+              setQr({ ticket: body.ticket, src: body.qr, state: 'pending' })
             } else if (body?.ok === false) {
               finished = true
               setQr((current) => (current === null ? null : { ...current, state: 'error', message: body.error?.message }))
